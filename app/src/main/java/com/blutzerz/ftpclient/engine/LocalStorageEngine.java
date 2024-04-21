@@ -7,21 +7,30 @@ import javax.swing.filechooser.FileSystemView;
 public class LocalStorageEngine {
     private File localDir;
 
-    public LocalStorageEngine(){
+    public LocalStorageEngine() {
         FileSystemView view = FileSystemView.getFileSystemView();
         this.localDir = view.getHomeDirectory();
     }
 
-    public void changeDirecotry(String path){
-        // localDir = path;
+    public void changeDirecotry(String path) {
+        localDir = new File(path);
     }
 
-    public File getCurrentDirectory(){
-        return localDir;
+    public String getCurrentDirectory() {
+        return localDir.getAbsolutePath();
     }
 
-    public String getContentDirectory(String path){
-        // return localDir;
-        return "";
+    public File[] getFilesDirectory() {
+        File[] files = localDir.listFiles();
+        return files;
+    }
+
+    public void deleteFile(String filename) {
+        File file = new File(getCurrentDirectory() + "/" + filename);
+        if (file.delete()) {
+            System.out.println("File " + filename + " berhasil dihapus");
+        } else {
+            System.out.println("Gagal menghapus " + filename);
+        }
     }
 }

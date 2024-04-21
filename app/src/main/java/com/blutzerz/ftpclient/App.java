@@ -8,55 +8,33 @@ import java.io.IOException;
 
 import javax.swing.filechooser.FileSystemView;
 
+import org.apache.commons.net.ftp.FTPFile;
+
+import com.blutzerz.ftpclient.engine.FTPEngine;
+import com.blutzerz.ftpclient.engine.LocalStorageEngine;
+
 public class App {
-    public String getGreeting() {
-        return "Hello World!";
-    }
-
-    
-
     public static void main(String[] args) throws IOException {
-        // System.out.println(new App().getGreeting());
+        LocalStorageEngine localDir = new LocalStorageEngine();
+        FTPEngine ftp = new FTPEngine(
+                "files.000webhost.com",
+                21,
+                "blutzerz-ftp-client-test",
+                "tNb2dRx![2Qw7LUf24");
 
-        // FTPEngine ftp = new FTPEngine(
-        //     "files.000webhost.com", 
-        //     21, 
-        //     "blutzerz-ftp-client-test", 
-        //     "tNb2dRx![2Qw7LUf24");
-
-            
-        // ftp.open();
-        // ftp.changeDirectory("/public_html");
-        // ftp.uploadFile("G:/img1.jpg");
-        // for(FTPFile ftpFile : ftp.getFilesDirectory()){
-        //     System.out.println(ftpFile.getName());
-        // }
-        // ftp.downloadFile(".htaccess", "G:\\BACKUP");
+        ftp.open();
+        ftp.changeDirectory("/public_html");
+        localDir.changeDirecotry("G:/BACKUP");
+        ftp.uploadFile(localDir.getCurrentDirectory() + "/" + "img2.jpg");
+        for (FTPFile ftpFile : ftp.getFilesDirectory()) {
+            System.out.println(ftpFile.getName());
+        }
+        ftp.downloadFile(".htaccess", localDir.getCurrentDirectory());
 
         // ftp.deleteFile("img1.jpg");
+        localDir.deleteFile("img2.jpg");
 
-        // ftp.close();
-        FileSystemView view = FileSystemView.getFileSystemView();
-        File dir = view.getHomeDirectory();
-        File[] files = dir.listFiles();
-
-        
-        for (File file : files) {
-            System.out.println(file);
-        }
-        System.out.println("Current Working Directory: " + dir.getAbsolutePath());
-        System.setProperty("user.dir", "/home/CODE");
-        System.out.println("Now Working Directory: " + dir.getAbsolutePath());
-        // files = dir.listFiles();
-
-        // for (File file : files) {
-        //     System.out.println(file);
-        // }
-
-        File file=new File(".");
-        System.out.println("Current Working Directory: " + file.getAbsolutePath());
-        System.setProperty("user.dir", "/home/blutzerz");
-        System.out.println("New Current Working Directory: " + file.getAbsolutePath());
+        ftp.close();
 
     }
 
