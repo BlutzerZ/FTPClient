@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="540.0" prefWidth="791.0" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.blutzerz.ftpclient.DashboardController">
+    <!-- Header -->
+    <top>
+        <VBox alignment="CENTER">
+            <MenuBar>
+                <menus>
+                    <Menu text="File">
+                        <items>
+                            <MenuItem onAction="#disconnect" text="Disconnect" />
+                        </items>
+                    </Menu>
+                </menus>
+            </MenuBar>
+        </VBox>
+    </top>
+    
+    <!-- Body -->
+    <center>
+        <HBox prefHeight="421.0" prefWidth="770.0" spacing="10">
+            <!-- Remote Server -->
+            <VBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                      <Label text="Local">
+                          <font>
+                              <Font size="15.0" />
+                          </font>
+                     <HBox.margin>
+                        <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                     </HBox.margin>
+                      </Label>
+                  <Label prefHeight="23.0" prefWidth="326.0" style="-fx-background-color: #222; -fx-text-fill: #fff;" text="Desktop / ">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <padding>
+                        <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                     </padding>
+                  </Label>
+               </children>
+               <VBox.margin>
+                  <Insets bottom="5.0" />
+               </VBox.margin>
+            </HBox>
+                <TreeView fx:id="remoteTreeViewFolder" prefHeight="400.0" prefWidth="415.0" VBox.vgrow="ALWAYS">
+               <VBox.margin>
+                  <Insets bottom="5.0" />
+               </VBox.margin></TreeView>
+            <TreeView fx:id="remoteTreeViewFile" prefHeight="529.0" prefWidth="335.0">
+               <VBox.margin>
+                  <Insets bottom="5.0" top="5.0" />
+               </VBox.margin>
+            </TreeView>
+            <HBox.margin>
+               <Insets right="3.0" />
+            </HBox.margin>
+            </VBox>
+            
+            <!-- Local Folder -->
+            <VBox>
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label text="Remote">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Label prefHeight="23.0" prefWidth="342.0" style="-fx-background-color: #222; -fx-text-fill: #fff;" text="Desktop / ">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <padding>
+                        <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                     </padding>
+                  </Label>
+               </children>
+            </HBox>
+                <TreeView fx:id="localTreeView" prefHeight="274.0" prefWidth="370.0">
+               <VBox.margin>
+                  <Insets bottom="5.0" />
+               </VBox.margin>
+            </TreeView>
+            <TreeView fx:id="localTreeView1" prefHeight="400.0" prefWidth="449.0">
+               <VBox.margin>
+                  <Insets bottom="5.0" top="5.0" />
+               </VBox.margin>
+            </TreeView>
+            <HBox.margin>
+               <Insets left="3.0" />
+            </HBox.margin>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>
