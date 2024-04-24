@@ -27,7 +27,7 @@ public class FTPEngine {
     private FTPClient ftpClient;
 
     // constructor
-    public FTPEngine(String server, int port, String user, String password) {
+    public FTPEngine(String server, int port, String user, String password) throws IOException {
         this.server = server;
         this.port = port;
         this.user = user;
@@ -35,22 +35,30 @@ public class FTPEngine {
         this.remoteDir = "/";
 
         ftpClient = new FTPClient();
+
+        this.open();
     }
 
-    public void open() throws IOException {
+    public void open() {
 
-        ftpClient.addProtocolCommandListener((ProtocolCommandListener) new PrintCommandListener(new PrintStream(System.out)));
+        ftpClient.addProtocolCommandListener(
+                (ProtocolCommandListener) new PrintCommandListener(new PrintStream(System.out)));
 
-        ftpClient.connect(server, port);
-        int reply = ftpClient.getReplyCode();
-        if (!FTPReply.isPositiveCompletion(reply)) {
-            ftpClient.disconnect();
-            throw new IOException("Exception in connecting to FTP Server");
+        try {
+
+            ftpClient.connect(server, port);
+            int reply = ftpClient.getReplyCode();
+            if (!FTPReply.isPositiveCompletion(reply)) {
+                ftpClient.disconnect();
+                throw new IOException("Exception in connecting to FTP Server");
+            }
+            ftpClient.enterLocalPassiveMode();
+
+            ftpClient.login(user, password);
+            ftpClient.changeWorkingDirectory(remoteDir);
+        } catch (Exception e) {
+            System.out.println(e);
         }
-        ftpClient.enterLocalPassiveMode();
-
-        ftpClient.login(user, password);
-        ftpClient.changeWorkingDirectory(remoteDir);
     }
 
     public void changeDirectory(String path) throws IOException {
@@ -58,7 +66,7 @@ public class FTPEngine {
         ftpClient.changeWorkingDirectory(remoteDir);
     }
 
-    public FTPFile[] getFilesDirectory() throws IOException{
+    public FTPFile[] getFilesDirectory() throws IOException {
         FTPFile[] files = ftpClient.listFiles(remoteDir);
         return files;
     }

@@ -1,0 +1,116 @@
+package com.blutzerz.ftpclient.controllers;
+
+import java.io.File;
+
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TreeCell;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableView;
+import javafx.scene.control.TreeView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+
+public class DashboardController {
+
+    @FXML
+    private TextField GUILocalDir;
+
+    @FXML
+    private TextField GUIRemoteDir;
+
+    @FXML
+    private TreeView<String> GUILocalTreeView;
+
+    @FXML
+    private TreeView<FileInfo> GUIRemoteTreeView;
+
+    @FXML
+    private TreeTableView<String> GUILocalTreeTableView;
+
+    @FXML
+    private TreeTableView<String> GUIRemoteTreeTableView;
+
+    private final ContextMenu addMenu = new ContextMenu();
+
+    public void initialize() {
+        TreeItem<FileInfo> remoteRoot = new TreeItem<>(new FileInfo("Remote", ""));
+
+        // Set
+        remoteRoot.setExpanded(true);
+        loadTreeView(new File("C:\\Users\\BlutzerZ\\Desktop"), remoteRoot);
+        GUIRemoteTreeView.setRoot(remoteRoot);
+
+        // Menu
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem openMenuItem = new MenuItem("Open");
+        MenuItem deleteMenuItem = new MenuItem("Delete");
+        addMenu.getItems().add(openMenuItem);
+        addMenu.getItems().add(deleteMenuItem);
+        contextMenu.getItems().addAll(openMenuItem, deleteMenuItem);
+        GUIRemoteTreeView.setOnContextMenuRequested(event -> {
+            TreeItem<FileInfo> selectedItem = GUIRemoteTreeView.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                contextMenu.show(GUIRemoteTreeView, event.getScreenX(), event.getScreenY());
+            }
+        });
+        GUIRemoteTreeView.setOnMouseClicked(this::handleMouseClick);
+
+        // Event
+        openMenuItem.setOnAction(this::openMenuItemHandler);
+        deleteMenuItem.setOnAction(this::deleteMenuItemHandler);
+
+    }
+
+    // Menu
+    private void openMenuItemHandler(ActionEvent t) {
+       TreeItem newFolder = new TreeItem<FileInfo>(new FileInfo("FolderName", "xxx"));
+            GUIRemoteTreeView.getSelectionModel().getSelectedItem().getChildren().add(newFolder);
+    }
+
+    private void deleteMenuItemHandler(ActionEvent t) {
+
+    }
+
+    // Event
+    private void handleMouseClick(MouseEvent event) {
+        if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+            FileInfo fileInfo = GUIRemoteTreeView.getSelectionModel().getSelectedItem().getValue();
+            if (fileInfo != null) {
+                System.out.println("Double click on: " + fileInfo.getName());
+                System.out.println("Path: " + fileInfo.getPath());
+            }
+        }
+    }
+
+    private void loadTreeView(File directory, TreeItem<FileInfo> parentItem) {
+        if (directory != null && directory.exists() && directory.isDirectory()) {
+            for (File file : directory.listFiles()) {
+                if (file.isDirectory()) {
+                    FileInfo fileInfo = new FileInfo(file.getName(), file.getAbsolutePath());
+                    TreeItem<FileInfo> item = new TreeItem<>(fileInfo);
+
+                    loadTreeView(file, item);
+                    parentItem.getChildren().add(item);
+                }
+            }
+        }
+    }
+
+    @FXML
+    private void handleOpen(ActionEvent event) {
+        TreeItem<FileInfo> selectedItem = GUIRemoteTreeView.getSelectionModel().getSelectedItem();
+        if (selectedItem != null) {
+            TreeItem<FileInfo> newFolder = new TreeItem<>(new FileInfo("FolderName", "xxx"));
+            selectedItem.getChildren().add(newFolder);
+        }
+    }
+
+    @FXML
+    private void handleDelete(ActionEvent event) {
+        // Handle delete action
+    }
+}

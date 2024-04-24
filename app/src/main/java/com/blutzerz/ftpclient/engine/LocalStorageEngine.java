@@ -16,7 +16,11 @@ public class LocalStorageEngine {
         localDir = new File(path);
     }
 
-    public String getCurrentDirectory() {
+    public File getCurrentDirectory() {
+        return localDir;
+    }
+
+    public String getStringCurrentDirectory() {
         return localDir.getAbsolutePath();
     }
 
