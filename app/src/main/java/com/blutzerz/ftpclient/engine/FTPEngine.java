@@ -27,7 +27,7 @@ public class FTPEngine {
     private FTPClient ftpClient;
 
     // constructor
-    public FTPEngine(String server, int port, String user, String password) throws IOException {
+    public FTPEngine(String server, int port, String user, String password) {
         this.server = server;
         this.port = port;
         this.user = user;
@@ -61,14 +61,27 @@ public class FTPEngine {
         }
     }
 
-    public void changeDirectory(String path) throws IOException {
+    public void changeDirectory(String path) {
         remoteDir = path;
-        ftpClient.changeWorkingDirectory(remoteDir);
+        try {
+            ftpClient.changeWorkingDirectory(remoteDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public FTPFile[] getFilesDirectory() throws IOException {
-        FTPFile[] files = ftpClient.listFiles(remoteDir);
+    public FTPFile[] getFilesDirectory() {
+        FTPFile[] files = null;
+        try {
+            files = ftpClient.listFiles(remoteDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return files;
+    }
+
+    public String getStringDirectory() {
+        return remoteDir;
     }
 
     public void uploadFile(String localFilePath) throws IOException {
@@ -85,15 +98,21 @@ public class FTPEngine {
         }
     }
 
-    public void downloadFile(String filename, String localFolderPath) throws IOException {
+    public void downloadFile(String filename, String localFolderPath) {
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(localFolderPath + "/" + filename);
             ftpClient.retrieveFile(remoteDir + "/" + filename, fos);
             System.out.println("File berhasil didownload: " + localFolderPath + "/" + filename);
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             if (fos != null) {
-                fos.close();
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

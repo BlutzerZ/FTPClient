@@ -1,5 +1,7 @@
 package com.blutzerz.ftpclient.controllers;
 
+import java.util.Objects;
+
 public class FileInfo {
     private String name;
     private String path;
