@@ -5,19 +5,18 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TreeTableColumn?>
-<?import javafx.scene.control.TreeTableView?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="615.0" prefWidth="844.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.blutzerz.ftpclient.controllers.DashboardController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="612.0" prefWidth="940.0" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.blutzerz.ftpclient.controllers.DashboardController">
    <children>
-      <VBox prefHeight="615.0" prefWidth="844.0">
+      <VBox prefHeight="615.0" prefWidth="940.0">
          <children>
             <MenuBar>
               <menus>
@@ -30,9 +29,9 @@
             </MenuBar>
             <HBox prefHeight="591.0" prefWidth="844.0">
                <children>
-                  <VBox prefHeight="590.0" prefWidth="428.0">
+                  <VBox prefHeight="586.0" prefWidth="440.0">
                      <children>
-                        <HBox prefHeight="100.0" prefWidth="200.0">
+                        <HBox prefHeight="27.0" prefWidth="482.0">
                            <children>
                               <Label text="Local Site">
                                  <padding>
@@ -49,21 +48,22 @@
                            </VBox.margin>
                         </HBox>
                         <TreeView fx:id="GUILocalTreeView" prefHeight="315.0" prefWidth="314.0" />
-                        <TreeTableView fx:id="GUILocalTreeTableView" prefHeight="385.0" prefWidth="314.0">
+                        <TableView fx:id="GUILocalTableView" prefHeight="386.0" prefWidth="428.0">
                           <columns>
-                            <TreeTableColumn fx:id="GUITreeTableViewFilename" prefWidth="147.0" text="Filename" />
-                            <TreeTableColumn fx:id="GUITreeTableViewFileSize" prefWidth="144.0" text="File Size" />
-                              <TreeTableColumn fx:id="GUITreeTableViewLastModified" prefWidth="144.0" text="Last Modifed" />
+                            <TableColumn fx:id="GUILocalTableColumnFilename" prefWidth="142.0" text="Filename" />
+                              <TableColumn fx:id="GUILocalTableColumnType" minWidth="0.0" prefWidth="61.0" text="Type" />
+                            <TableColumn fx:id="GUILocalTableColumnSize" prefWidth="74.0" text="Size" />
+                              <TableColumn fx:id="GUILocalTableColumnLastMod" prefWidth="167.0" text="Last Modified" />
                           </columns>
-                        </TreeTableView>
+                        </TableView>
                      </children>
                      <HBox.margin>
                         <Insets right="2.0" />
                      </HBox.margin>
                   </VBox>
-                  <VBox prefHeight="590.0" prefWidth="402.0">
+                  <VBox prefHeight="588.0" prefWidth="496.0">
                      <children>
-                        <HBox prefHeight="100.0" prefWidth="200.0">
+                        <HBox prefHeight="27.0" prefWidth="466.0">
                            <children>
                               <Label text="Remote Site">
                                  <padding>
@@ -79,14 +79,15 @@
                               <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                            </VBox.margin>
                         </HBox>
-                        <TreeView fx:id="GUIRemoteTreeView" prefHeight="315.0" prefWidth="314.0" />
-                        <TreeTableView fx:id="GUIRemoteTreeTableView" prefHeight="385.0" prefWidth="314.0">
+                        <TreeView fx:id="GUIRemoteTreeView" prefHeight="315.0" prefWidth="226.0" />
+                        <TableView fx:id="GUIRemoteTableView" prefHeight="386.0" prefWidth="428.0">
                            <columns>
-                              <TreeTableColumn prefWidth="147.0" text="Filename" />
-                              <TreeTableColumn prefWidth="144.0" text="File Size" />
-                              <TreeTableColumn prefWidth="144.0" text="Last Modifed" />
+                              <TableColumn fx:id="GUIRemoteTableColumnFilename" prefWidth="159.0" text="Filename" />
+                              <TableColumn fx:id="GUIRemoteTableColumnType" prefWidth="79.0" text="Type" />
+                              <TableColumn fx:id="GUIRemoteTableColumnSize" prefWidth="75.0" text="Size" />
+                              <TableColumn fx:id="GUIRemoteTableColumnLastMod" prefWidth="220.0" text="Last Modified" />
                            </columns>
-                        </TreeTableView>
+                        </TableView>
                      </children>
                      <padding>
                         <Insets left="2.0" />

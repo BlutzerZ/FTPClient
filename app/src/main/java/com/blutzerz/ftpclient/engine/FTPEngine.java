@@ -84,6 +84,17 @@ public class FTPEngine {
         return remoteDir;
     }
 
+    public long getSize(String path) {
+        long size = 0;
+        try {
+            size = ftpClient.mlistFile(path).getSize();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return size;
+    }
+
     public void uploadFile(String localFilePath) throws IOException {
         FileInputStream fis = null;
         try {
@@ -126,7 +137,12 @@ public class FTPEngine {
         }
     }
 
-    public void close() throws IOException {
-        ftpClient.disconnect();
+    public void close() {
+        try {
+            ftpClient.disconnect();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 }
