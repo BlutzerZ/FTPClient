@@ -7,11 +7,14 @@ import java.util.Arrays;
 
 import org.apache.commons.net.ftp.FTPFile;
 
+import com.blutzerz.ftpclient.App;
 import com.blutzerz.ftpclient.engine.FTPEngine;
 import com.blutzerz.ftpclient.engine.LocalStorageEngine;
+import com.blutzerz.ftpclient.util.DirInfo;
+import com.blutzerz.ftpclient.util.FileInfo;
 
-import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -19,9 +22,10 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableView;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
@@ -43,6 +47,9 @@ public class DashboardController {
     private TableView<DirInfo> GUILocalTableView;
 
     @FXML
+    private TableColumn<DirInfo, String> GUILocalTableColumnIcon;
+
+    @FXML
     private TableColumn<DirInfo, String> GUILocalTableColumnFilename;
 
     @FXML
@@ -58,6 +65,9 @@ public class DashboardController {
     private TableView<DirInfo> GUIRemoteTableView;
 
     @FXML
+    private TableColumn<DirInfo, String> GUIRemoteTableColumnIcon;
+
+    @FXML
     private TableColumn<DirInfo, String> GUIRemoteTableColumnFilename;
 
     @FXML
@@ -69,15 +79,37 @@ public class DashboardController {
     @FXML
     private TableColumn<DirInfo, String> GUIRemoteTableColumnLastMod;
 
+    @FXML
+    private MenuItem GUIMenuItemDisconnect;
+
     private LocalStorageEngine localDir;
 
     private FTPEngine remoteDir;
 
-    public void initialize() throws IOException {
+    private Image fileIcon;
+    private Image folderIcon;
+
+    App app;
+
+    public void initialize(FTPEngine ftpEngine, App app) throws IOException {
+        this.app = app;
+        this.remoteDir = ftpEngine;
+        this.localDir = new LocalStorageEngine();
+
+        // =================================================
+        // L O A D I C O N
+        // =================================================
+
+        fileIcon = new Image(DashboardController.class.getResourceAsStream("/icons/file-regular.png"), 15, 15, false,
+                false);
+        folderIcon = new Image(DashboardController.class.getResourceAsStream("/icons/folder-solid.png"), 15, 15, false,
+                false);
+
+        // =================================================
+        // L O A D C O M P O N E N T
+        // =================================================
         TreeItem<FileInfo> localRoot = new TreeItem<>(new FileInfo("Local", ""));
         localRoot.setExpanded(true);
-        localDir = new LocalStorageEngine();
-        System.out.println(localDir.getStringCurrentDirectory());
         loadLocalTreeView(localDir.getCurrentDirectory(), localRoot);
         GUILocalTreeView.setRoot(localRoot);
         GUILocalDir.setText(localDir.getStringCurrentDirectory());
@@ -85,45 +117,32 @@ public class DashboardController {
 
         TreeItem<FileInfo> remoteRoot = new TreeItem<>(new FileInfo("Remote", ""));
         remoteRoot.setExpanded(true);
-        System.out.println("YOHOHOHOH");
-        remoteDir = new FTPEngine(
-                "files.000webhost.com",
-                21,
-                "blutzerz-ftp-client-test",
-                "tNb2dRx![2Qw7LUf24");
+
         loadRemoteTreeView("/", remoteRoot);
         GUIRemoteTreeView.setRoot(remoteRoot);
         GUIRemoteDir.setText(remoteDir.getStringDirectory());
         loadRemoteTableView(localDir.getStringCurrentDirectory(), remoteRoot);
 
+        GUILocalTableColumnIcon.setCellValueFactory(new PropertyValueFactory<>("icon"));
         GUILocalTableColumnFilename.setCellValueFactory(new PropertyValueFactory<>("name"));
         GUILocalTableColumnType.setCellValueFactory(new PropertyValueFactory<>("type"));
         GUILocalTableColumnSize.setCellValueFactory(new PropertyValueFactory<>("size"));
         GUILocalTableColumnLastMod.setCellValueFactory(new PropertyValueFactory<>("lastMod"));
 
+        GUIRemoteTableColumnIcon.setCellValueFactory(new PropertyValueFactory<>("icon"));
         GUIRemoteTableColumnFilename.setCellValueFactory(new PropertyValueFactory<>("name"));
         GUIRemoteTableColumnType.setCellValueFactory(new PropertyValueFactory<>("type"));
         GUIRemoteTableColumnSize.setCellValueFactory(new PropertyValueFactory<>("size"));
         GUIRemoteTableColumnLastMod.setCellValueFactory(new PropertyValueFactory<>("lastMod"));
 
-        // Menu
+        // =================================================
+        // L O A D M E N U
+        // =================================================
         ContextMenu treeViewMenu = new ContextMenu();
         MenuItem openMenuItem = new MenuItem("Open");
         MenuItem createMenuItem = new MenuItem("Create Folder");
         MenuItem deleteMenuItem = new MenuItem("Delete");
         treeViewMenu.getItems().addAll(openMenuItem, createMenuItem, deleteMenuItem);
-        GUILocalTreeView.setOnContextMenuRequested(event -> {
-            TreeItem<FileInfo> selectedItem = GUILocalTreeView.getSelectionModel().getSelectedItem();
-            if (selectedItem != null) {
-                treeViewMenu.show(GUILocalTreeView, event.getScreenX(), event.getScreenY());
-            }
-        });
-        GUIRemoteTreeView.setOnContextMenuRequested(event -> {
-            TreeItem<FileInfo> selectedItem = GUIRemoteTreeView.getSelectionModel().getSelectedItem();
-            if (selectedItem != null) {
-                treeViewMenu.show(GUIRemoteTreeView, event.getScreenX(), event.getScreenY());
-            }
-        });
 
         ContextMenu localTableViewMenu = new ContextMenu();
         MenuItem localTableViewUploadMenuItem = new MenuItem("Upload");
@@ -147,69 +166,37 @@ public class DashboardController {
             }
         });
 
-        // Event
-        GUILocalTreeView.setOnMouseClicked((event) -> {
-            doubleClickTree(event, GUILocalTreeView, "local");
+        GUILocalTreeView.setOnContextMenuRequested(event -> {
+            TreeItem<FileInfo> selectedItem = GUILocalTreeView.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                treeViewMenu.show(GUILocalTreeView, event.getScreenX(), event.getScreenY());
+            }
         });
-        GUIRemoteTreeView.setOnMouseClicked((event) -> {
-            doubleClickTree(event, GUIRemoteTreeView, "remote");
+        GUIRemoteTreeView.setOnContextMenuRequested(event -> {
+            TreeItem<FileInfo> selectedItem = GUIRemoteTreeView.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                treeViewMenu.show(GUIRemoteTreeView, event.getScreenX(), event.getScreenY());
+            }
         });
+
+        // =================================================
+        // L O A D ___ E V E N T
+        // =================================================
+
+        GUILocalTreeView.setOnMouseClicked((event) -> doubleClickTree(event, GUILocalTreeView, "local"));
+        GUIRemoteTreeView.setOnMouseClicked((event) -> doubleClickTree(event, GUIRemoteTreeView, "remote"));
 
         openMenuItem.setOnAction((event) -> openMenuItemHandler(event, GUILocalTreeView));
         createMenuItem.setOnAction((event) -> createMenuItemHandler(event, GUILocalTreeView));
         deleteMenuItem.setOnAction((event) -> deleteMenuItemHandler(event, GUILocalTreeView));
 
-        localTableViewUploadMenuItem.setOnAction((event) -> {
-            for (int i = 0; i < 5; i++) {
-                try {
-                    remoteDir.uploadFile(localDir.getStringCurrentDirectory() + "/"
-                            + GUILocalTableView.getSelectionModel().getSelectedItem().getName());
-                    break;
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                    remoteDir.close();
-                    remoteDir.open();
-                }
-            }
-            TreeItem<FileInfo> selectedRemoteDir = new TreeItem<>(new FileInfo(
-                    GUILocalTableView.getSelectionModel().getSelectedItem().getName(),
-                    GUILocalTableView.getSelectionModel().getSelectedItem().getPath()));
-            loadRemoteTableView(remoteDir.getStringDirectory(),
-                    selectedRemoteDir);
-        });
+        localTableViewUploadMenuItem.setOnAction((event) -> this.uploadFile(event));
+        remoteTableViewDownloadMenuItem.setOnAction((event) -> this.downloadFile(event));
 
-        remoteTableViewDownloadMenuItem.setOnAction((event) -> {
-            remoteDir.downloadFile(GUIRemoteTableView.getSelectionModel().getSelectedItem().getName(),
-                    localDir.getStringCurrentDirectory());
+        GUILocalTableView.setOnMouseClicked((event) -> this.loadLocalDirectoryTable(event));
+        GUIRemoteTableView.setOnMouseClicked((event) -> this.loadRemoteDirectoryTable(event));
 
-            TreeItem<FileInfo> selectedLocalDir = new TreeItem<>(new FileInfo(
-                    GUIRemoteTableView.getSelectionModel().getSelectedItem().getName(),
-                    GUIRemoteTableView.getSelectionModel().getSelectedItem().getPath()));
-            loadLocalTableView(localDir.getCurrentDirectory(), selectedLocalDir);
-        });
-
-        GUILocalTableView.setOnMouseClicked((event) -> {
-            if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
-                System.out.println("MUEHEHE");
-                TreeItem<FileInfo> selectedLocalDir = new TreeItem<>(new FileInfo(
-                        GUILocalTableView.getSelectionModel().getSelectedItem().getName(),
-                        GUILocalTableView.getSelectionModel().getSelectedItem().getPath()));
-                localDir.changeDirecotry(selectedLocalDir.getValue().getPath());
-                loadLocalTableView(localDir.getCurrentDirectory(), selectedLocalDir);
-            }
-        });
-
-        GUIRemoteTableView.setOnMouseClicked((event) -> {
-            if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
-                System.out.println("MUEHEHE");
-                TreeItem<FileInfo> selectedRemoteDir = new TreeItem<>(new FileInfo(
-                        GUIRemoteTableView.getSelectionModel().getSelectedItem().getName(),
-                        GUIRemoteTableView.getSelectionModel().getSelectedItem().getPath()));
-                loadRemoteTableView(remoteDir.getStringDirectory(),
-                        selectedRemoteDir);
-            }
-        });
+        GUIMenuItemDisconnect.setOnAction((event) -> this.disconnectFTP(event));
     }
 
     private void loadLocalTreeView(File directory, TreeItem<FileInfo> parentItem) {
@@ -220,6 +207,7 @@ public class DashboardController {
                     TreeItem<FileInfo> item = new TreeItem<>(fileInfo);
 
                     if (parentItem.getChildren().isEmpty()) {
+                        item.setGraphic(new ImageView(folderIcon));
                         parentItem.getChildren().add(item);
                     } else {
                         boolean found = false;
@@ -231,6 +219,7 @@ public class DashboardController {
                             }
                         }
                         if (!found) {
+                            item.setGraphic(new ImageView(folderIcon));
                             parentItem.getChildren().add(item);
                         }
                     }
@@ -242,19 +231,34 @@ public class DashboardController {
     private void loadRemoteTreeView(String parentDir, TreeItem<FileInfo> parentItem) {
         remoteDir.changeDirectory(parentDir);
         parentItem.getChildren().clear();
-        for (int i = 0; i < 5; i++) {
-            if (remoteDir.getFilesDirectory() == null) {
-                remoteDir.open();
+
+        FTPFile[] files = null;
+        int retryCount = 0;
+        final int MAX_RETRIES = 5;
+        while (files == null && retryCount < MAX_RETRIES) {
+            try {
+                files = remoteDir.getFilesDirectory();
+            } catch (IOException e) {
+                System.out.println("Error: " + e.getMessage());
+                System.out.println("Connection timed out. Retrying...");
+                retryCount++;
+                try {
+                    Thread.sleep(2000); // Tunggu 2 detik sebelum mencoba kembali
+                    remoteDir.open();
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
 
-        for (FTPFile ftpFile : remoteDir.getFilesDirectory()) {
+        for (FTPFile ftpFile : files) {
             if (ftpFile.isDirectory() && !(ftpFile.getName().equals(".") || ftpFile.getName().equals(".."))) {
 
                 FileInfo fileInfo = new FileInfo(ftpFile.getName(), parentDir + ftpFile.getName() + "/");
                 TreeItem<FileInfo> item = new TreeItem<>(fileInfo);
-
+                item.setGraphic(new ImageView(folderIcon));
                 parentItem.getChildren().add(item);
+
             }
         }
     }
@@ -267,12 +271,12 @@ public class DashboardController {
             for (File file : files) {
                 if (file.isFile()) {
                     GUILocalTableView.getItems()
-                            .add(new DirInfo(file.getName(), file.getAbsolutePath(), "File",
+                            .add(new DirInfo(new ImageView(fileIcon), file.getName(), file.getAbsolutePath(), "File",
                                     file.length(),
                                     file.lastModified()));
                 } else if (file.isDirectory()) {
                     GUILocalTableView.getItems()
-                            .add(new DirInfo(file.getName(), file.getAbsolutePath(), "Dir",
+                            .add(new DirInfo(new ImageView(folderIcon), file.getName(), file.getAbsolutePath(), "Dir",
                                     file.length(),
                                     file.lastModified()));
                 }
@@ -284,16 +288,37 @@ public class DashboardController {
         GUIRemoteTableView.getItems().clear();
 
         remoteDir.changeDirectory(parentDir);
-        for (FTPFile ftpFile : remoteDir.getFilesDirectory()) {
+        FTPFile[] files = null;
+        int retryCount = 0;
+        final int MAX_RETRIES = 5;
+        while (files == null && retryCount < MAX_RETRIES) {
+            try {
+                files = remoteDir.getFilesDirectory();
+            } catch (IOException e) {
+                System.out.println("Error: " + e.getMessage());
+                System.out.println("Connection timed out. Retrying...");
+                retryCount++;
+                try {
+                    Thread.sleep(2000); // Tunggu 2 detik sebelum mencoba kembal
+                    remoteDir.open();
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+
+        for (FTPFile ftpFile : files) {
             if (ftpFile.isFile()) {
                 System.out.println(ftpFile);
                 GUIRemoteTableView.getItems()
-                        .add(new DirInfo(ftpFile.getName(), parentDir + ftpFile.getName() + "/", "File",
+                        .add(new DirInfo(new ImageView(fileIcon), ftpFile.getName(),
+                                parentDir + ftpFile.getName() + "/", "File",
                                 ftpFile.getSize(),
                                 ftpFile.getTimestamp().getTime().getTime()));
             } else if (ftpFile.isDirectory() && !(ftpFile.getName().equals(".") || ftpFile.getName().equals(".."))) {
                 GUIRemoteTableView.getItems()
-                        .add(new DirInfo(ftpFile.getName(), parentDir + ftpFile.getName() + "/", "Dir",
+                        .add(new DirInfo(new ImageView(folderIcon), ftpFile.getName(),
+                                parentDir + ftpFile.getName() + "/", "Dir",
                                 ftpFile.getSize(),
                                 ftpFile.getTimestamp().getTime().getTime()));
             }
@@ -341,13 +366,69 @@ public class DashboardController {
         }
     }
 
-    public void openFolder(String type) {
-        if (type == "local") {
+    private void uploadFile(ActionEvent event) {
+        int retryCount = 0;
+        final int MAX_RETRIES = 5;
+        while (retryCount < MAX_RETRIES) {
+            try {
+                remoteDir.uploadFile(localDir.getStringCurrentDirectory() + "/"
+                        + GUILocalTableView.getSelectionModel().getSelectedItem().getName());
 
-        } else if (type == "remote") {
-
-        } else {
-            System.out.println("Invalid Argument");
+            } catch (IOException e) {
+                System.out.println("Error: " + e.getMessage());
+                System.out.println("Connection timed out. Retrying...");
+                retryCount++;
+                try {
+                    Thread.sleep(2000); // Tunggu 2 detik sebelum mencoba kembali
+                    remoteDir.open();
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
+        TreeItem<FileInfo> selectedRemoteDir = new TreeItem<>(new FileInfo(
+                GUILocalTableView.getSelectionModel().getSelectedItem().getName(),
+                GUILocalTableView.getSelectionModel().getSelectedItem().getPath()));
+        loadRemoteTableView(remoteDir.getStringDirectory(),
+                selectedRemoteDir);
+    }
+
+    private void downloadFile(ActionEvent eveent) {
+        remoteDir.downloadFile(GUIRemoteTableView.getSelectionModel().getSelectedItem().getName(),
+                localDir.getStringCurrentDirectory());
+
+        TreeItem<FileInfo> selectedLocalDir = new TreeItem<>(new FileInfo(
+                GUIRemoteTableView.getSelectionModel().getSelectedItem().getName(),
+                GUIRemoteTableView.getSelectionModel().getSelectedItem().getPath()));
+        loadLocalTableView(localDir.getCurrentDirectory(), selectedLocalDir);
+    }
+
+    private void loadLocalDirectoryTable(MouseEvent event) {
+        if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+            TreeItem<FileInfo> selectedLocalDir = new TreeItem<>(new FileInfo(
+                    GUILocalTableView.getSelectionModel().getSelectedItem().getName(),
+                    GUILocalTableView.getSelectionModel().getSelectedItem().getPath()));
+            localDir.changeDirecotry(selectedLocalDir.getValue().getPath());
+            loadLocalTableView(localDir.getCurrentDirectory(), selectedLocalDir);
+        }
+    }
+
+    private void loadRemoteDirectoryTable(MouseEvent event) {
+        if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+            TreeItem<FileInfo> selectedRemoteDir = new TreeItem<>(new FileInfo(
+                    GUIRemoteTableView.getSelectionModel().getSelectedItem().getName(),
+                    GUIRemoteTableView.getSelectionModel().getSelectedItem().getPath()));
+            loadRemoteTableView(selectedRemoteDir.getValue().getPath(),
+                    selectedRemoteDir);
+        }
+    }
+
+    private void disconnectFTP(ActionEvent event) {
+        try {
+            this.app.showLogin();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        remoteDir.close();
     }
 }

@@ -22,7 +22,7 @@
               <menus>
                 <Menu mnemonicParsing="false" text="Menu">
                   <items>
-                    <MenuItem mnemonicParsing="false" text="Disconnect" />
+                    <MenuItem fx:id="GUIMenuItemDisconnect" mnemonicParsing="false" text="Disconnect" />
                   </items>
                 </Menu>
               </menus>
@@ -50,7 +50,8 @@
                         <TreeView fx:id="GUILocalTreeView" prefHeight="315.0" prefWidth="314.0" />
                         <TableView fx:id="GUILocalTableView" prefHeight="386.0" prefWidth="428.0">
                           <columns>
-                            <TableColumn fx:id="GUILocalTableColumnFilename" prefWidth="142.0" text="Filename" />
+                              <TableColumn fx:id="GUILocalTableColumnIcon" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" />
+                            <TableColumn fx:id="GUILocalTableColumnFilename" prefWidth="252.0" text="Filename" />
                               <TableColumn fx:id="GUILocalTableColumnType" minWidth="0.0" prefWidth="61.0" text="Type" />
                             <TableColumn fx:id="GUILocalTableColumnSize" prefWidth="74.0" text="Size" />
                               <TableColumn fx:id="GUILocalTableColumnLastMod" prefWidth="167.0" text="Last Modified" />
@@ -82,6 +83,7 @@
                         <TreeView fx:id="GUIRemoteTreeView" prefHeight="315.0" prefWidth="226.0" />
                         <TableView fx:id="GUIRemoteTableView" prefHeight="386.0" prefWidth="428.0">
                            <columns>
+                              <TableColumn fx:id="GUIRemoteTableColumnIcon" maxWidth="20.0" minWidth="20.0" prefWidth="20.0" />
                               <TableColumn fx:id="GUIRemoteTableColumnFilename" prefWidth="159.0" text="Filename" />
                               <TableColumn fx:id="GUIRemoteTableColumnType" prefWidth="79.0" text="Type" />
                               <TableColumn fx:id="GUIRemoteTableColumnSize" prefWidth="75.0" text="Size" />

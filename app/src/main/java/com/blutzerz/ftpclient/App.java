@@ -1,6 +1,8 @@
 package com.blutzerz.ftpclient;
 
 import com.blutzerz.ftpclient.controllers.DashboardController;
+import com.blutzerz.ftpclient.controllers.LoginController;
+import com.blutzerz.ftpclient.engine.FTPEngine;
 
 // import com.blutzerz.ftpclient.controllers.DashboardController;
 
@@ -12,18 +14,32 @@ import javafx.stage.Stage;
 
 public class App extends Application {
 
+    private Stage stage;
+
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/dashboard.fxml"));
+        stage = primaryStage;
+        showLogin();
+    }
 
+    public void showLogin() throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/login.fxml"));
         Parent root = loader.load();
-        DashboardController controller = loader.getController();
+        Scene scene = new Scene(root);
+        LoginController loginController = loader.getController();
+        loginController.setApp(this);
+        stage.setScene(scene);
+        stage.show();
+    }
 
-        controller.initialize();
-
-        primaryStage.setTitle("FTP Dashboard");
-        primaryStage.setScene(new Scene(root, 800, 600));
-        primaryStage.show();
+    public void showDashboard(FTPEngine ftpEngine) throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/dashboard.fxml"));
+        Parent root = loader.load();
+        DashboardController dashboardController = loader.getController();
+        dashboardController.initialize(ftpEngine, this);
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
     }
 
     public static void main(String[] args) {

@@ -1,20 +1,28 @@
-package com.blutzerz.ftpclient.controllers;
+package com.blutzerz.ftpclient.util;
 
 import java.text.SimpleDateFormat;
 
+import javafx.scene.image.ImageView;
+
 public class DirInfo {
+    private ImageView icon;
     private String name;
     private String path;
     private String type;
     private String size;
     private String lastMod;
 
-    public DirInfo(String name, String path, String type, long size, long lastMod) {
+    public DirInfo(ImageView icon, String name, String path, String type, long size, long lastMod) {
+        this.icon = icon;
         this.name = name;
         this.path = path;
         this.type = type;
         this.size = convertSizetoString(size);
         this.lastMod = convertLastModtoString(lastMod);
+    }
+
+    public ImageView getIcon() {
+        return icon;
     }
 
     public String getName() {

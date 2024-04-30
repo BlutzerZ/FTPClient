@@ -1,33 +1,71 @@
-// package com.blutzerz.ftpclient.controllers;
+package com.blutzerz.ftpclient.controllers;
 
-// import javafx.fxml.FXML;
+import com.blutzerz.ftpclient.App;
+import com.blutzerz.ftpclient.engine.FTPEngine;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
 
-// public class LoginController {
-// @FXML
-// public void initialize() {
-// // Memuat data remote server
-// TreeItem<String> remoteRoot = new TreeItem<>("Remote");
-// remoteRoot.setExpanded(true);
-// loadTreeView(new File("/path/to/remote/directory"), remoteRoot);
-// remoteTreeView.setRoot(remoteRoot);
+public class LoginController {
 
-// // Memuat data folder lokal
-// TreeItem<String> localRoot = new TreeItem<>("Local");
-// localRoot.setExpanded(true);
-// loadTreeView(new File("/path/to/local/directory"), localRoot);
-// localTreeView.setRoot(localRoot);
-// }
+    @FXML
+    private TextField GUILoginHost;
 
-// // Metode rekursif untuk memuat data ke dalam TreeView
-// private void loadTreeView(File directory, TreeItem<String> parentItem) {
-// if (directory != null && directory.exists() && directory.isDirectory()) {
-// for (File file : directory.listFiles()) {
-// TreeItem<String> item = new TreeItem<>(file.getName());
-// if (file.isDirectory()) {
-// loadTreeView(file, item);
-// }
-// parentItem.getChildren().add(item);
-// }
-// }
-// }
-// }
+    @FXML
+    private TextField GUILoginPort;
+
+    @FXML
+    private TextField GUILoginUsername;
+
+    @FXML
+    private PasswordField GUILoginPassword;
+
+    @FXML
+    private Button GUIConnectButton;
+
+    @FXML
+    private Label GUIFailedLoginLabel;
+
+    private FTPEngine ftpEngine;
+
+    private App app;
+
+    public void setApp(App app) {
+        this.app = app;
+    }
+
+    @FXML
+    public void initialize() {
+        GUIFailedLoginLabel.setVisible(false);
+        GUIConnectButton.setOnMouseClicked((event) -> {
+            GUIConnectButton.setText("Connecting...");
+            this.connect();
+        });
+    }
+
+    @FXML
+    public void connect() {
+        String host = GUILoginHost.getText();
+        int port = Integer.parseInt(GUILoginPort.getText());
+        String username = GUILoginUsername.getText();
+        String password = GUILoginPassword.getText();
+        ftpEngine = new FTPEngine(host, port, username, password);
+        if (ftpEngine != null && ftpEngine.isConnected()) {
+            try {
+                app.showDashboard(ftpEngine);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } else {
+            GUIConnectButton.setText("Connect");
+            GUIFailedLoginLabel.setVisible(true);
+        }
+    }
+
+    @FXML
+    public void disconnect() {
+        if (ftpEngine != null) {
+            ftpEngine.close();
+        }
+    }
+}

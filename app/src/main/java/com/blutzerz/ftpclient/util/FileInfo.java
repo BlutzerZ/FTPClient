@@ -1,4 +1,4 @@
-package com.blutzerz.ftpclient.controllers;
+package com.blutzerz.ftpclient.util;
 
 import java.util.Objects;
 
